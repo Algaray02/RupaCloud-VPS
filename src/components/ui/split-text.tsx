@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface SplitTextProps {
   text: string;
@@ -28,6 +29,7 @@ export function SplitText({
   textAlign = "center",
   onLetterAnimationComplete,
 }: SplitTextProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const words = text.split(" ");
   const [inView, setInView] = useState(false);
   const ref = useRef<HTMLHeadingElement>(null);
@@ -51,6 +53,14 @@ export function SplitText({
 
     return () => observer.disconnect();
   }, [threshold, rootMargin]);
+
+  if (prefersReducedMotion) {
+    return (
+      <h1 className={`inline-block ${className}`} style={{ textAlign }}>
+        {text}
+      </h1>
+    );
+  }
 
   return (
     <h1

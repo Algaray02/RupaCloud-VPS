@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
+import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 
 interface ScrollRevealProps {
   children: ReactNode;
@@ -24,6 +25,12 @@ export function ScrollReveal({
   once = true,
   staggerChildren = 0.1,
 }: ScrollRevealProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const getInitialPosition = () => {
     switch (direction) {
       case "up":
@@ -89,6 +96,12 @@ export function ScrollRevealItem({
   direction = "up",
   distance = 25,
 }: ScrollRevealItemProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   const getInitialPosition = () => {
     switch (direction) {
       case "up":

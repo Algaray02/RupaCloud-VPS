@@ -11,7 +11,6 @@ import {
   GraduationCap,
   Bot,
   Trophy,
-  ShieldCheck,
   Server,
 } from "lucide-react";
 import { GithubIcon } from "@/components/shared/github-icon";
@@ -20,7 +19,10 @@ import { Plan } from "@/lib/data/types";
 import { formatRupiah } from "@/lib/utils";
 import { SplitText } from "@/components/ui/split-text";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/scroll-reveal";
-import { HeroTerminalMockup } from "@/components/ui/hero-terminal-mockup";
+import { SpotlightCard } from "@/components/ui/spotlight-card";
+import { ShineBorder } from "@/components/ui/shine-border";
+import { SparklesText } from "@/components/ui/sparkles-text";
+import { VideoShowcaseCarousel } from "@/components/ui/video-showcase-carousel";
 import { FaqAccordion } from "@/components/ui/faq-accordion";
 import { useLanguage } from "@/lib/i18n/language-context";
 
@@ -106,20 +108,23 @@ export default function LandingPage() {
     },
   ];
 
-  const heroTitle = t("Sewa VPS Mikro Harian. Bayar Sesuai Kebutuhanmu.", "Daily Micro VPS Rental. Pay Only What You Need.");
+  const heroTitle = t(
+    "Sewa VPS Mikro Harian. Bayar Sesuai Kebutuhanmu.",
+    "Daily Micro VPS Rental. Pay Only What You Need."
+  );
 
   return (
     <div className="space-y-24 pb-16 overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center pt-8 pb-16 lg:py-24 bg-gradient-to-b from-blue-50/60 via-white to-white bg-tech-grid overflow-hidden">
-        {/* Soft Ambient Background Glow Orbs */}
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-blue-300/25 via-cyan-200/20 to-indigo-300/20 rounded-full blur-3xl -z-10 pointer-events-none" />
+      <section className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center pt-8 pb-16 lg:py-24 bg-gradient-to-b from-blue-100/30 via-white to-white bg-tech-grid overflow-hidden">
+        {/* Soft Ambient Background Glow (Static - No Looping Animation) */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-blue-100/40 rounded-full blur-3xl -z-10 pointer-events-none" />
 
-        {/* Bottom Fade Mask to Section 2 */}
+        {/* Bottom Fade Mask */}
         <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none z-0" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8 lg:space-y-10 w-full relative z-10">
-          {/* Animated Hero Title */}
+          {/* Animated Hero Title with SplitText */}
           <SplitText
             key={lang}
             text={heroTitle}
@@ -156,9 +161,9 @@ export default function LandingPage() {
             </div>
           </ScrollReveal>
 
-          {/* Glassmorphism Live Terminal & Container Mockup */}
+          {/* Video Showcase Carousel (Replaces HeroTerminalMockup & TiltedCard) */}
           <ScrollReveal delay={0.5} direction="up" distance={30}>
-            <HeroTerminalMockup />
+            <VideoShowcaseCarousel />
           </ScrollReveal>
 
           {/* Micro badges */}
@@ -181,7 +186,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Keunggulan Section */}
+      {/* Keunggulan Section (SpotlightCard on Hover Only) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal direction="up" distance={25}>
           <div className="text-center space-y-3 mb-12">
@@ -199,7 +204,7 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <ScrollRevealItem delay={0.1} className="h-full">
-            <div className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-blue-400 hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 space-y-3 h-full">
+            <SpotlightCard className="space-y-3 h-full">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
                 <Clock className="w-6 h-6" />
               </div>
@@ -212,11 +217,11 @@ export default function LandingPage() {
                   "Choose a rental period of 1 day, 3 days, or 1 week. Save money without paying for a full month."
                 )}
               </p>
-            </div>
+            </SpotlightCard>
           </ScrollRevealItem>
 
           <ScrollRevealItem delay={0.2} className="h-full">
-            <div className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-blue-400 hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 space-y-3 h-full">
+            <SpotlightCard className="space-y-3 h-full">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
                 <Zap className="w-6 h-6" />
               </div>
@@ -229,11 +234,11 @@ export default function LandingPage() {
                   "LXD/Incus container servers are ready to use in seconds after transaction confirmation."
                 )}
               </p>
-            </div>
+            </SpotlightCard>
           </ScrollRevealItem>
 
           <ScrollRevealItem delay={0.3} className="h-full">
-            <div className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-blue-400 hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 space-y-3 h-full">
+            <SpotlightCard className="space-y-3 h-full">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
                 <GithubIcon className="w-6 h-6" />
               </div>
@@ -246,11 +251,11 @@ export default function LandingPage() {
                   "Connect your GitHub repository to automatically and conveniently deploy your applications."
                 )}
               </p>
-            </div>
+            </SpotlightCard>
           </ScrollRevealItem>
 
           <ScrollRevealItem delay={0.4} className="h-full">
-            <div className="p-6 bg-white border border-slate-200/80 rounded-2xl shadow-sm hover:border-blue-400 hover:shadow-md hover:-translate-y-1.5 transition-all duration-300 space-y-3 h-full">
+            <SpotlightCard className="space-y-3 h-full">
               <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
                 <Terminal className="w-6 h-6" />
               </div>
@@ -263,12 +268,12 @@ export default function LandingPage() {
                   "Manage your server directly from the browser without installing terminal tools or SSH clients."
                 )}
               </p>
-            </div>
+            </SpotlightCard>
           </ScrollRevealItem>
         </div>
       </section>
 
-      {/* Preview Tier Harga Section */}
+      {/* Preview Tier Harga Section (Fokus Konversi - Featured Card with ShineBorder & SparklesText) */}
       <section className="bg-slate-50 py-16 border-y border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <ScrollReveal direction="up" distance={25}>
@@ -285,26 +290,30 @@ export default function LandingPage() {
             </div>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
             {loading
               ? [1, 2, 3].map((i) => (
                   <div key={i} className="h-80 bg-slate-200/60 animate-pulse rounded-2xl" />
                 ))
-              : plans.slice(0, 3).map((plan, idx) => (
-                  <ScrollRevealItem key={plan.id} delay={idx * 0.15}>
+              : plans.slice(0, 3).map((plan, idx) => {
+                  const isFeatured = idx === 1;
+
+                  const cardContent = (
                     <div
-                      className={`p-6 bg-white rounded-2xl border transition-all duration-300 flex flex-col justify-between h-full ${
-                        idx === 1
-                          ? "border-blue-600 shadow-lg relative ring-2 ring-blue-600/20 animate-float"
-                          : "border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1"
+                      className={`p-6 bg-white rounded-2xl flex flex-col justify-between h-full ${
+                        isFeatured
+                          ? "scale-105 shadow-xl transition-transform duration-300"
+                          : "border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                       }`}
                     >
-                      {idx === 1 && (
-                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
-                          {t("Paling Laris", "Best Seller")}
-                        </span>
+                      {isFeatured && (
+                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
+                          <span className="bg-navy-800 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md inline-flex items-center justify-center">
+                            <SparklesText text={t("Paling Laris", "Best Seller")} />
+                          </span>
+                        </div>
                       )}
-                      <div className="space-y-4">
+                      <div className="space-y-4 pt-2">
                         <h3 className="text-xl font-bold text-navy-900">{plan.name}</h3>
                         <div className="flex items-baseline gap-1">
                           <span className="text-3xl font-extrabold text-navy-900">
@@ -334,8 +343,8 @@ export default function LandingPage() {
                         <Link
                           href="/product"
                           className={`w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center transition-all ${
-                            idx === 1
-                              ? "bg-navy-800 hover:bg-navy-900 text-white shadow"
+                            isFeatured
+                              ? "bg-navy-800 hover:bg-navy-900 text-white shadow-md hover:shadow-lg"
                               : "bg-blue-100 hover:bg-blue-100/80 text-navy-900"
                           }`}
                         >
@@ -343,8 +352,18 @@ export default function LandingPage() {
                         </Link>
                       </div>
                     </div>
-                  </ScrollRevealItem>
-                ))}
+                  );
+
+                  return (
+                    <ScrollRevealItem key={plan.id} delay={idx * 0.15} className="h-full">
+                      {isFeatured ? (
+                        <ShineBorder className="h-full">{cardContent}</ShineBorder>
+                      ) : (
+                        cardContent
+                      )}
+                    </ScrollRevealItem>
+                  );
+                })}
           </div>
 
           <ScrollReveal delay={0.4} direction="up" distance={15}>
@@ -366,7 +385,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Target Personas Section */}
+      {/* Target Personas Section (Split Entrance & Solid Color Token Transition) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <ScrollReveal direction="up" distance={25}>
           <div className="text-center space-y-3">
@@ -386,9 +405,13 @@ export default function LandingPage() {
           {personas.map((p, idx) => {
             const Icon = p.icon;
             return (
-              <ScrollRevealItem key={idx} delay={idx * 0.1}>
-                <div className="p-6 bg-blue-100/30 border border-blue-100 rounded-2xl space-y-3 hover:bg-blue-100/60 hover:-translate-y-1 transition-all duration-300 h-full">
-                  <div className="w-10 h-10 bg-navy-800 text-white rounded-lg flex items-center justify-center shadow-sm">
+              <ScrollRevealItem
+                key={idx}
+                delay={idx * 0.1}
+                direction={idx < 2 ? "right" : "left"}
+              >
+                <div className="group p-6 bg-blue-100/20 border border-blue-100/80 rounded-2xl space-y-3 hover:bg-blue-100/40 hover:-translate-y-1 transition-all duration-300 h-full">
+                  <div className="w-10 h-10 bg-navy-800 text-white rounded-lg flex items-center justify-center shadow-sm group-hover:-translate-y-1 transition-transform duration-300">
                     <Icon className="w-5 h-5" />
                   </div>
                   <h3 className="text-base font-bold text-navy-900">{p.title}</h3>
@@ -400,7 +423,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* FAQ Ringkas Section */}
+      {/* FAQ Ringkas Section (Spring Accordion) */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <ScrollReveal direction="up" distance={25}>
           <div className="text-center space-y-3">

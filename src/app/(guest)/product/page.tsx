@@ -37,10 +37,6 @@ export default function ProductCatalogPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Header */}
       <ScrollReveal direction="up" distance={25} className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-semibold">
-          <Server className="w-3.5 h-3.5" />
-          <span>{t("Katalog Matriks Paket VPS", "VPS Package Matrix Catalog")}</span>
-        </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-navy-900">
           {t("Pilih Durasi & Spesifikasi Server", "Choose Duration & Server Specs")}
         </h1>
