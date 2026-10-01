@@ -21,17 +21,43 @@ export function DevToolbar() {
     setRole(savedRole);
   }, []);
 
-  const handleRoleChange = (newRole: Role) => {
-    setRole(newRole);
-    document.cookie = `rc_mock_role=${newRole}; path=/; max-age=86400`;
-    
-    // Redirect to the default page for the selected role
-    if (newRole === "CUSTOMER") {
-      window.location.href = "/dashboard";
-    } else if (newRole === "ADMIN") {
-      window.location.href = "/admin/dashboard";
-    } else {
-      window.location.href = "/";
+  const [isChanging, setIsChanging] = useState(false);
+
+  const handleRoleChange = async (newRole: Role) => {
+    setIsChanging(true);
+    try {
+      if (newRole === "ADMIN") {
+        await fetch("/api/auth/logout", { method: "POST" });
+        await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "admin@rupacloud.id",
+            password: "Admin123!",
+          }),
+        });
+        document.cookie = "rc_mock_role=ADMIN; path=/; max-age=86400";
+        window.location.href = "/admin/dashboard";
+      } else if (newRole === "CUSTOMER") {
+        await fetch("/api/auth/logout", { method: "POST" });
+        await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "budi@student.univ.ac.id",
+            password: "Password123!",
+          }),
+        });
+        document.cookie = "rc_mock_role=CUSTOMER; path=/; max-age=86400";
+        window.location.href = "/dashboard";
+      } else {
+        await fetch("/api/auth/logout", { method: "POST" });
+        document.cookie = "rc_mock_role=GUEST; path=/; max-age=0";
+        window.location.href = "/";
+      }
+    } catch (err) {
+      console.error("Failed to switch role:", err);
+      setIsChanging(false);
     }
   };
 
@@ -74,7 +100,7 @@ export function DevToolbar() {
   return (
     <div
       style={{ right: `${position.x}px`, bottom: `${position.y}px` }}
-      className="fixed z-50 bg-navy-900 text-white rounded-xl shadow-2xl border border-navy-800 p-2.5 w-64 select-none backdrop-blur-md bg-opacity-95 text-xs font-sans"
+      className="fixed z-50 bg-navy-900 text-white rounded-xl shadow-2xl border border-navy-800 p-2.5 w-64 select-none backdrop-blur-md bg-opacity-95 text-xs font-sans print:hidden"
     >
       <div
         onMouseDown={handleMouseDown}
@@ -98,8 +124,9 @@ export function DevToolbar() {
           <div className="grid grid-cols-3 gap-1">
             <button
               onClick={() => handleRoleChange("GUEST")}
+              disabled={isChanging}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1",
+                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1 cursor-pointer disabled:opacity-50",
                 role === "GUEST"
                   ? "bg-blue-600 border-blue-400 text-white font-bold"
                   : "bg-navy-800/60 border-navy-800 text-neutral-300 hover:bg-navy-800"
@@ -111,8 +138,9 @@ export function DevToolbar() {
 
             <button
               onClick={() => handleRoleChange("CUSTOMER")}
+              disabled={isChanging}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1",
+                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1 cursor-pointer disabled:opacity-50",
                 role === "CUSTOMER"
                   ? "bg-blue-600 border-blue-400 text-white font-bold"
                   : "bg-navy-800/60 border-navy-800 text-neutral-300 hover:bg-navy-800"
@@ -124,8 +152,9 @@ export function DevToolbar() {
 
             <button
               onClick={() => handleRoleChange("ADMIN")}
+              disabled={isChanging}
               className={cn(
-                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1",
+                "flex flex-col items-center justify-center p-2 rounded-lg border transition-all gap-1 cursor-pointer disabled:opacity-50",
                 role === "ADMIN"
                   ? "bg-blue-600 border-blue-400 text-white font-bold"
                   : "bg-navy-800/60 border-navy-800 text-neutral-300 hover:bg-navy-800"

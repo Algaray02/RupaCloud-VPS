@@ -41,9 +41,15 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
     loadUser();
   }, []);
 
-  const handleLogout = () => {
-    document.cookie = "rc_mock_role=GUEST; path=/; max-age=86400";
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error(e);
+    }
+    document.cookie = "rc_mock_role=GUEST; path=/; max-age=0";
     router.push("/login");
+    router.refresh();
   };
 
   const navSections = [
@@ -89,14 +95,14 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex font-sans">
+    <div className="min-h-screen bg-slate-100 print:bg-white flex font-sans">
       {/* ONBOARDING SPOTLIGHT TOUR */}
       <OnboardingTour userId={user?.id || "usr_cust_1"} />
 
       {/* FULL HEIGHT DESKTOP SIDEBAR */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col bg-white border-r border-slate-200 min-h-screen sticky top-0 z-40 transition-all duration-300 select-none",
+          "hidden lg:flex flex-col bg-white border-r border-slate-200 min-h-screen sticky top-0 z-40 transition-all duration-300 select-none print:hidden",
           isCollapsed ? "w-20" : "w-64"
         )}
       >
@@ -247,7 +253,7 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
       {/* RIGHT MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col min-w-0 min-h-screen">
         {/* TOPBAR */}
-        <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30">
+        <header className="h-16 bg-white border-b border-slate-200 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 print:hidden">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
@@ -311,10 +317,10 @@ export function CustomerShell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">{children}</main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto print:p-0 print:m-0 print:max-w-none">{children}</main>
 
         {/* FOOTER */}
-        <footer className="py-4 px-6 bg-white border-t border-slate-200 text-center text-xs text-neutral-400">
+        <footer className="py-4 px-6 bg-white border-t border-slate-200 text-center text-xs text-neutral-400 print:hidden">
           © {new Date().getFullYear()} RuPa Cloud Indonesia • Maruta & Alpa Technology.
         </footer>
       </div>

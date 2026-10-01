@@ -44,6 +44,9 @@ export default function ContainerDetailPage({ params }: { params: Promise<{ id: 
   const [resetModalOpen, setResetModalOpen] = useState<boolean>(false);
   const [resetting, setResetting] = useState<boolean>(false);
   const [resetSuccess, setResetSuccess] = useState<boolean>(false);
+  
+  // GitHub integration state
+  const [githubRepos, setGithubRepos] = useState<any[] | null>(null);
 
   // Mock monitoring data for Recharts
   const monitoringData = [
@@ -60,6 +63,16 @@ export default function ContainerDetailPage({ params }: { params: Promise<{ id: 
       const data = await dataSource.getOrderDetail(orderId);
       setOrder(data);
       setLoading(false);
+      
+      // Also fetch github repos in background
+      fetch("/api/user/github/repos")
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            setGithubRepos(data.repositories);
+          }
+        })
+        .catch(err => console.error("Failed fetching repos", err));
     }
     loadDetail();
   }, [orderId]);
@@ -312,35 +325,55 @@ export default function ContainerDetailPage({ params }: { params: Promise<{ id: 
                 Hubungkan repositori GitHub kamu untuk memicu otomatisasi build ke container.
               </p>
             </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-lg flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Connected
-            </span>
+            {githubRepos ? (
+              <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-lg flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Connected
+              </span>
+            ) : (
+              <span className="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-lg flex items-center gap-1.5 border border-slate-200">
+                Not Connected
+              </span>
+            )}
           </div>
 
           <div className="space-y-4 max-w-lg">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-navy-900">Repositori GitHub</label>
-              <select className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs text-navy-900">
-                <option>budipratama/node-express-api (Branch: main)</option>
-                <option>budipratama/python-bot-discord (Branch: main)</option>
-              </select>
-            </div>
+            {!githubRepos ? (
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                <p className="text-xs text-neutral-600">Kamu belum menghubungkan akun GitHub untuk auto-deploy.</p>
+                <Link href="/settings" className="px-4 py-2 bg-navy-800 text-white rounded-lg text-xs font-bold inline-block hover:bg-navy-900 transition-colors">
+                  Pergi ke Pengaturan Akun
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-navy-900">Pilih Repositori GitHub</label>
+                  <select className="w-full px-3.5 py-2 border border-slate-300 rounded-xl text-xs text-navy-900 focus:outline-none focus:border-blue-500">
+                    {githubRepos.length === 0 && <option>Tidak ada repositori ditemukan</option>}
+                    {githubRepos.map((repo: any) => (
+                      <option key={repo.id} value={repo.name}>
+                        {repo.name} (Branch: {repo.defaultBranch}) {repo.private ? "🔒" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-            <button className="px-4 py-2.5 bg-navy-800 hover:bg-navy-900 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center gap-2">
-              <RefreshCcw className="w-4 h-4" />
-              <span>Trigger Manual Redeploy</span>
-            </button>
+                <button className="px-4 py-2.5 bg-navy-800 hover:bg-navy-900 text-white font-bold text-xs rounded-xl shadow transition-colors flex items-center gap-2">
+                  <RefreshCcw className="w-4 h-4" />
+                  <span>Pasang Webhook & Trigger Deploy</span>
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="pt-4">
-            <h3 className="text-xs font-bold text-navy-900 mb-2">Build Log Terakhir</h3>
-            <div className="p-4 bg-navy-900 text-neutral-300 font-mono text-[11px] rounded-xl space-y-1">
-              <p className="text-blue-400">[INFO] Triggering GitHub Webhook commit e81a92f...</p>
-              <p>[BUILD] Fetching repository budipratama/node-express-api...</p>
-              <p>[BUILD] Running npm install && npm run build...</p>
-              <p className="text-green-400">[SUCCESS] Container restarted cleanly on port 8080.</p>
+          {githubRepos && (
+            <div className="pt-4 border-t border-slate-100 mt-6">
+              <h3 className="text-xs font-bold text-navy-900 mb-2">Build Log Terakhir</h3>
+              <div className="p-4 bg-navy-900 text-neutral-300 font-mono text-[11px] rounded-xl space-y-1 shadow-inner h-32 overflow-y-auto">
+                <p className="text-neutral-500 italic">Belum ada deploy log.</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 

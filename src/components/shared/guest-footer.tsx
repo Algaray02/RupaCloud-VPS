@@ -14,7 +14,7 @@ export function GuestFooter() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12 pb-12 border-b border-navy-800">
           {/* Brand Info */}
           <div className="space-y-4 md:col-span-1">
-            <Logo className="text-white" />
+            <Logo lightText />
             <p className="text-sm text-blue-100/70 leading-relaxed">
               {t(
                 "Platform reseller VPS mikro harian terjangkau untuk mahasiswa & developer pemula di Indonesia. Sewa harian, auto-deploy, tanpa komitmen bulanan.",

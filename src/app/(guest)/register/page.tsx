@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { registerSchema, RegisterInput } from "@/lib/validations";
 import { Logo } from "@/components/shared/logo";
-import { ArrowRight, AlertCircle } from "lucide-react";
+import { ArrowRight, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 export default function RegisterPage() {
@@ -17,11 +17,13 @@ export default function RegisterPage() {
     confirmPassword: "",
     agreeTerms: true,
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setServerError(null);
@@ -38,17 +40,28 @@ export default function RegisterPage() {
       return;
     }
 
-    // Demo check for existing email
-    if (formData.email === "budi@mahasiswa.ac.id") {
-      setServerError("Email ini sudah terdaftar. Masuk saja, atau pakai email lain.");
-      return;
-    }
-
     setLoading(true);
-    setTimeout(() => {
-      document.cookie = "rc_mock_role=CUSTOMER; path=/; max-age=86400";
-      router.push("/verify-otp");
-    }, 600);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(data.error || "Gagal mendaftar. Silakan periksa formulir kamu.");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/verify-otp?email=" + encodeURIComponent(formData.email));
+    } catch (err: any) {
+      setServerError("Terjadi kesalahan koneksi. Silakan coba lagi.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -97,25 +110,47 @@ export default function RegisterPage() {
 
             <div className="space-y-1">
               <label className="text-xs font-semibold text-navy-900">Password</label>
-              <input
-                type="password"
-                placeholder="Minimal 6 karakter"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Minimal 6 karakter"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full pl-3.5 pr-10 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {errors.password && <p className="text-[11px] text-red-600">{errors.password}</p>}
             </div>
 
             <div className="space-y-1">
               <label className="text-xs font-semibold text-navy-900">Konfirmasi Password</label>
-              <input
-                type="password"
-                placeholder="Ulangi password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Ulangi password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className="w-full pl-3.5 pr-10 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showConfirmPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {errors.confirmPassword && (
                 <p className="text-[11px] text-red-600">{errors.confirmPassword}</p>
               )}

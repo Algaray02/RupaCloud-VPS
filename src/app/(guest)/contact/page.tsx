@@ -1,17 +1,38 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, MessageSquare, Send, CheckCircle2 } from "lucide-react";
+import { Mail, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/scroll-reveal";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.name && formData.email && formData.message) {
-      setSubmitted(true);
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Gagal mengirim pesan.");
+        }
+
+        setSubmitted(true);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -76,12 +97,19 @@ export default function ContactPage() {
                   ></textarea>
                 </div>
 
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg">
+                    {error}
+                  </div>
+                )}
+
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-navy-800 hover:bg-navy-900 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 shadow transition-all hover:-translate-y-0.5"
+                  disabled={loading}
+                  className="w-full py-2.5 bg-navy-800 hover:bg-navy-900 disabled:opacity-70 text-white rounded-lg font-semibold text-sm flex items-center justify-center gap-2 shadow transition-all hover:-translate-y-0.5"
                 >
-                  <Send className="w-4 h-4" />
-                  <span>Kirim Pesan</span>
+                  <Send className={`w-4 h-4 ${loading ? 'animate-pulse' : ''}`} />
+                  <span>{loading ? "Mengirim..." : "Kirim Pesan"}</span>
                 </button>
               </form>
             )}
@@ -99,22 +127,22 @@ export default function ContactPage() {
 
               <div className="space-y-3 pt-2">
                 <a
-                  href="https://discord.com"
+                  href="https://wa.me/6289515954530"
                   target="_blank"
                   rel="noreferrer"
-                  className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center gap-3 hover:border-blue-400 hover:-translate-y-0.5 transition-all shadow-sm"
+                  className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center gap-3 hover:border-green-400 hover:-translate-y-0.5 transition-all shadow-sm"
                 >
-                  <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                    <MessageSquare className="w-5 h-5" />
+                  <div className="p-2 bg-green-100 text-green-600 rounded-lg">
+                    <MessageCircle className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-navy-900">Komunitas Discord</h3>
-                    <p className="text-[11px] text-neutral-500">Gabung server Discord RuPa Cloud</p>
+                    <h3 className="text-xs font-bold text-navy-900">WhatsApp CS</h3>
+                    <p className="text-[11px] text-neutral-500">+62 895 1595 4530</p>
                   </div>
                 </a>
 
                 <a
-                  href="mailto:support@rupacloud.id"
+                  href="mailto:rupacloudarim@gmail.com"
                   className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center gap-3 hover:border-blue-400 hover:-translate-y-0.5 transition-all shadow-sm"
                 >
                   <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
@@ -122,7 +150,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-navy-900">Email Direct Support</h3>
-                    <p className="text-[11px] text-neutral-500">support@rupacloud.id</p>
+                    <p className="text-[11px] text-neutral-500">rupacloudarim@gmail.com</p>
                   </div>
                 </a>
               </div>

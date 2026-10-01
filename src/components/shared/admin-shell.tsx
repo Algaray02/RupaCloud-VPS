@@ -57,9 +57,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     },
   ];
 
-  const handleLogout = () => {
-    document.cookie = "rc_mock_role=GUEST; path=/; max-age=86400";
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (e) {
+      console.error(e);
+    }
+    document.cookie = "rc_mock_role=GUEST; path=/; max-age=0";
     router.push("/login");
+    router.refresh();
   };
 
   const getBreadcrumb = (isMobile = false) => {
@@ -83,7 +89,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       >
         {/* Sidebar Header */}
         <div className="h-16 px-4 flex items-center justify-between border-b border-navy-800">
-          <Logo href="/admin/dashboard" iconOnly={isCollapsed} className="text-white" />
+          <Logo href="/admin/dashboard" iconOnly={isCollapsed} lightText />
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
             className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-navy-800 transition-colors"
@@ -168,7 +174,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             >
               <div className="space-y-6">
                 <div className="flex items-center justify-between pb-3 border-b border-navy-800">
-                  <Logo href="/admin/dashboard" className="text-white" />
+                  <Logo href="/admin/dashboard" lightText />
                   <button
                     onClick={() => setMobileOpen(false)}
                     className="p-1.5 text-neutral-400 hover:bg-navy-800 rounded-lg cursor-pointer"

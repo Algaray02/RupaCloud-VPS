@@ -10,13 +10,18 @@ import {
   ChevronRight,
   Zap,
 } from "lucide-react";
-import { dataSource } from "@/lib/data";
+import { liveDataSource } from "@/lib/data/live";
+import { getSessionUser } from "@/lib/session";
 import { formatRupiah, cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function CustomerDashboard() {
-  const user = await dataSource.getCurrentUser("CUSTOMER");
-  const userId = user?.id || "usr_cust_1";
-  const orders = await dataSource.getOrdersByUser(userId);
+  const sessionUser = await getSessionUser();
+  const userId = sessionUser?.id ?? "";
+  const user = userId ? await liveDataSource.getUserById(userId) : null;
+  const orders = userId ? await liveDataSource.getOrdersByUser(userId) : [];
+
 
   const activeOrders = orders.filter((o) => o.status === "ACTIVE" || o.status === "EXPIRING_SOON");
   const expiringSoonOrders = orders.filter((o) => o.status === "EXPIRING_SOON");
@@ -30,7 +35,7 @@ export default async function CustomerDashboard() {
             RuPa Cloud Dashboard
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold">
-            Selamat Datang Kembali, {user?.name || "Developer"}! 👋
+            Selamat Datang Kembali, {user?.name || "Developer"}!
           </h1>
           <p className="text-xs sm:text-sm text-neutral-300 max-w-xl">
             Kelola VPS mikro harian kamu, cek status jam operasional, dan lakukan perpanjangan dalam satu tempat.

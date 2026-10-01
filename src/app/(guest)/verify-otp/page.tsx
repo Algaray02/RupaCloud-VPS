@@ -45,7 +45,7 @@ export default function VerifyOtpPage() {
     }
   };
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
     if (code.length !== 6) {
@@ -60,10 +60,27 @@ export default function VerifyOtpPage() {
 
     setLoading(true);
     setError(null);
-    setTimeout(() => {
-      document.cookie = "rc_mock_role=CUSTOMER; path=/; max-age=86400";
+
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp: code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Kode OTP salah atau telah kadaluwarsa.");
+        setLoading(false);
+        return;
+      }
+
       router.push("/dashboard");
-    }, 600);
+    } catch (err: any) {
+      setError("Terjadi kesalahan koneksi. Silakan coba lagi.");
+      setLoading(false);
+    }
   };
 
   const handleResend = () => {

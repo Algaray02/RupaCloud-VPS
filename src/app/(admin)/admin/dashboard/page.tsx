@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Users, DollarSign, Server, AlertTriangle, TrendingUp } from "lucide-react";
-import { dataSource } from "@/lib/data";
+
 import { formatRupiah } from "@/lib/utils";
 import {
   BarChart,
@@ -36,18 +36,19 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function loadAdminStats() {
-      const users = await dataSource.getAllUsers();
-      const orders = await dataSource.getAllOrders();
-      const trxs = await dataSource.getAllTransactions();
-
-      setTotalCustomers(users.filter((u) => u.role === "CUSTOMER").length);
-      setTotalOrders(orders.length);
-
-      const rev = trxs
-        .filter((t) => t.status === "SUCCESS")
-        .reduce((sum, t) => sum + t.amount, 0);
-      setTotalRevenue(rev);
-
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.stats) {
+            setTotalCustomers(data.stats.totalCustomers);
+            setTotalOrders(data.stats.totalOrders);
+            setTotalRevenue(data.stats.totalRevenue);
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
       setLoading(false);
     }
     loadAdminStats();

@@ -18,34 +18,78 @@ export default function ProfileSettingsPage() {
 
   useEffect(() => {
     async function loadData() {
-      const u = await dataSource.getCurrentUser("CUSTOMER");
-      if (u) {
-        setUser(u);
-        setName(u.name);
-        setEmail(u.email);
-        setGithubHandle(u.githubHandle || "");
-        setGithubConnected(!!u.githubHandle);
+      try {
+        const res = await fetch("/api/user/profile");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user) {
+            setUser(data.user);
+            setName(data.user.name);
+            setEmail(data.user.email);
+            setGithubHandle(data.user.githubHandle || "");
+            setGithubConnected(!!data.user.githubHandle);
+          }
+        } else {
+          const u = await dataSource.getCurrentUser("CUSTOMER");
+          if (u) {
+            setUser(u);
+            setName(u.name);
+            setEmail(u.email);
+            setGithubHandle(u.githubHandle || "");
+            setGithubConnected(!!u.githubHandle);
+          }
+        }
+      } catch (e) {
+        console.error(e);
       }
       setLoading(false);
     }
     loadData();
   }, []);
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
-  };
-
-  const toggleGithub = () => {
-    if (githubConnected) {
-      setGithubConnected(false);
-      setGithubHandle("");
-    } else {
-      setGithubConnected(true);
-      setGithubHandle("budipratama");
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email }),
+      });
+      if (res.ok) {
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
+    } catch (e) {
+      console.error(e);
     }
   };
+
+  const toggleGithub = async () => {
+    try {
+      if (githubConnected) {
+        const res = await fetch("/api/user/github/disconnect", { method: "POST" });
+        if (res.ok) {
+          setGithubConnected(false);
+          setGithubHandle("");
+        }
+      } else {
+        window.location.href = "/api/auth/github";
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // Check URL for success/error messages from OAuth
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("success") === "GithubConnected") {
+      setSavedSuccess(true);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setTimeout(() => setSavedSuccess(false), 3000);
+    }
+  }, []);
 
   if (loading) {
     return <div className="h-64 bg-slate-200 rounded-2xl animate-pulse"></div>;
@@ -63,7 +107,7 @@ export default function ProfileSettingsPage() {
       {savedSuccess && (
         <div className="p-4 bg-green-50 border border-green-200 rounded-xl text-xs text-green-800 font-semibold flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
-          <span>Pengaturan profil berhasil diperbarui!</span>
+          <span>Perubahan profil/integrasi berhasil disimpan!</span>
         </div>
       )}
 
@@ -110,8 +154,8 @@ export default function ProfileSettingsPage() {
           <GithubIcon className="w-4 h-4 text-navy-900" /> Integrasi GitHub Auto-deploy
         </h2>
 
-        <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl">
-          <div className="space-y-1">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl gap-4">
+          <div className="space-y-1 flex-1">
             <span className="text-xs font-bold text-navy-900 block">
               {githubConnected ? `Terhubung sebagai @${githubHandle}` : "Belum terhubung ke GitHub"}
             </span>
@@ -122,13 +166,13 @@ export default function ProfileSettingsPage() {
 
           <button
             onClick={toggleGithub}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
               githubConnected
                 ? "bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
                 : "bg-navy-800 text-white hover:bg-navy-900 shadow"
             }`}
           >
-            {githubConnected ? "Putuskan GitHub" : "Hubungkan GitHub"}
+            {githubConnected ? "Putuskan GitHub" : "Hubungkan ke GitHub"}
           </button>
         </div>
       </div>

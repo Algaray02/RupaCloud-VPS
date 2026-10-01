@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { loginSchema, LoginInput } from "@/lib/validations";
 import { Logo } from "@/components/shared/logo";
-import { ArrowRight, AlertCircle, ShieldAlert } from "lucide-react";
+import { ArrowRight, AlertCircle, ShieldAlert, Eye, EyeOff } from "lucide-react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { useLanguage } from "@/lib/i18n/language-context";
 
@@ -20,13 +20,14 @@ export default function LoginPage() {
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [rateLimitWarning, setRateLimitWarning] = useState<boolean>(false);
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setServerError(null);
@@ -55,17 +56,32 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    setTimeout(() => {
-      // Set role cookie
-      const targetRole = formData.email.includes("admin") ? "ADMIN" : "CUSTOMER";
-      document.cookie = `rc_mock_role=${targetRole}; path=/; max-age=86400`;
 
-      if (targetRole === "ADMIN") {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setServerError(data.error || "Gagal login. Silakan periksa kredensial kamu.");
+        setLoading(false);
+        return;
+      }
+
+      const role = data.user?.role || "CUSTOMER";
+      if (role === "ADMIN") {
         router.push("/admin/dashboard");
       } else {
         router.push(redirectUrl);
       }
-    }, 500);
+    } catch (err: any) {
+      setServerError("Terjadi kesalahan koneksi. Silakan coba lagi.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -122,14 +138,25 @@ export default function LoginPage() {
                   Lupa Password?
                 </Link>
               </div>
-              <input
-                type="password"
-                disabled={rateLimitWarning}
-                placeholder="Masukkan password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:bg-slate-100"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  disabled={rateLimitWarning}
+                  placeholder="Masukkan password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="w-full pl-3.5 pr-10 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:bg-slate-100"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
               {errors.password && <p className="text-[11px] text-red-600">{errors.password}</p>}
             </div>
 

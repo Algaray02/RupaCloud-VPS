@@ -16,7 +16,7 @@ import {
 import { GithubIcon } from "@/components/shared/github-icon";
 import { dataSource } from "@/lib/data";
 import { Plan } from "@/lib/data/types";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah, cn } from "@/lib/utils";
 import { SplitText } from "@/components/ui/split-text";
 import { ScrollReveal, ScrollRevealItem } from "@/components/ui/scroll-reveal";
 import { SpotlightCard } from "@/components/ui/spotlight-card";
@@ -25,6 +25,7 @@ import { SparklesText } from "@/components/ui/sparkles-text";
 import { VideoShowcaseCarousel } from "@/components/ui/video-showcase-carousel";
 import { FaqAccordion } from "@/components/ui/faq-accordion";
 import { useLanguage } from "@/lib/i18n/language-context";
+import { CloudValuesSection } from "@/components/shared/cloud-values-section";
 
 export default function LandingPage() {
   const { lang, t } = useLanguage();
@@ -114,7 +115,7 @@ export default function LandingPage() {
   );
 
   return (
-    <div className="space-y-24 pb-16 overflow-hidden">
+    <div className="space-y-24 pb-16">
       {/* Hero Section */}
       <section className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center pt-8 pb-16 lg:py-24 bg-gradient-to-b from-blue-100/30 via-white to-white bg-tech-grid overflow-hidden">
         {/* Soft Ambient Background Glow (Static - No Looping Animation) */}
@@ -186,6 +187,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Value Bisnis (CLOUD) Section */}
+      <CloudValuesSection />
+
       {/* Keunggulan Section (SpotlightCard on Hover Only) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <ScrollReveal direction="up" distance={25}>
@@ -202,79 +206,111 @@ export default function LandingPage() {
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <ScrollRevealItem delay={0.1} className="h-full">
-            <SpotlightCard className="space-y-3 h-full">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                <Clock className="w-6 h-6" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 auto-rows-[minmax(280px,auto)]">
+          {/* Card 1: Wide (2 columns) */}
+          <ScrollRevealItem delay={0.1} className="lg:col-span-2 h-full">
+            <SpotlightCard className="h-full p-0 overflow-hidden border border-slate-200/60 bg-gradient-to-br from-white to-slate-50/80">
+              <div className="h-full flex flex-col sm:flex-row items-start sm:items-center gap-6 p-8 relative">
+                <div className="flex-1 space-y-4 relative z-10">
+                  <div className="w-14 h-14 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-200/50">
+                    <Clock className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-navy-900 tracking-tight">
+                    {t("Sewa Durasi Pendek", "Short-Term Rental")}
+                  </h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed max-w-md">
+                    {t(
+                      "Pilih masa sewa 1 hari, 3 hari, atau 1 minggu. Hemat biaya tanpa perlu membayar sewa sebulan penuh. Cocok untuk tugas kuliah, eksperimen, atau event singkat.",
+                      "Choose a rental period of 1 day, 3 days, or 1 week. Save money without paying for a full month. Perfect for college assignments, experiments, or short events."
+                    )}
+                  </p>
+                </div>
+                <div className="hidden sm:flex flex-1 justify-end absolute -right-6 top-1/2 -translate-y-1/2 opacity-[0.03] pointer-events-none">
+                  <Clock className="w-64 h-64 text-navy-900" />
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-navy-900">
-                {t("Sewa Durasi Pendek", "Short-Term Rental")}
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                {t(
-                  "Pilih masa sewa 1 hari, 3 hari, atau 1 minggu. Hemat biaya tanpa perlu membayar sewa sebulan penuh.",
-                  "Choose a rental period of 1 day, 3 days, or 1 week. Save money without paying for a full month."
-                )}
-              </p>
             </SpotlightCard>
           </ScrollRevealItem>
 
-          <ScrollRevealItem delay={0.2} className="h-full">
-            <SpotlightCard className="space-y-3 h-full">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                <Zap className="w-6 h-6" />
+          {/* Card 2: Narrow (1 column) */}
+          <ScrollRevealItem delay={0.2} className="lg:col-span-1 h-full">
+            <SpotlightCard className="h-full p-0 overflow-hidden border border-slate-200/60 bg-gradient-to-bl from-white to-blue-50/40">
+              <div className="h-full flex flex-col p-8 relative">
+                <div className="w-14 h-14 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-200/50 mb-6 relative z-10">
+                  <Zap className="w-7 h-7" />
+                </div>
+                <div className="space-y-3 relative z-10">
+                  <h3 className="text-2xl font-extrabold text-navy-900 tracking-tight">
+                    {t("Provisioning Cepat", "Instant Provisioning")}
+                  </h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    {t(
+                      "Server container LXD/Incus siap digunakan dalam hitungan detik setelah transaksi terkonfirmasi.",
+                      "LXD/Incus container servers are ready to use in seconds after transaction confirmation."
+                    )}
+                  </p>
+                </div>
+                <div className="absolute -bottom-10 -right-10 opacity-[0.03] pointer-events-none">
+                  <Zap className="w-56 h-56 text-navy-900" />
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-navy-900">
-                {t("Provisioning Cepat", "Instant Provisioning")}
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                {t(
-                  "Server container LXD/Incus siap digunakan dalam hitungan detik setelah transaksi terkonfirmasi.",
-                  "LXD/Incus container servers are ready to use in seconds after transaction confirmation."
-                )}
-              </p>
             </SpotlightCard>
           </ScrollRevealItem>
 
-          <ScrollRevealItem delay={0.3} className="h-full">
-            <SpotlightCard className="space-y-3 h-full">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                <GithubIcon className="w-6 h-6" />
+          {/* Card 3: Narrow (1 column) */}
+          <ScrollRevealItem delay={0.3} className="lg:col-span-1 h-full">
+            <SpotlightCard className="h-full p-0 overflow-hidden border border-slate-200/60 bg-gradient-to-tr from-white to-blue-50/40">
+              <div className="h-full flex flex-col p-8 relative">
+                <div className="w-14 h-14 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-200/50 mb-6 relative z-10">
+                  <GithubIcon className="w-7 h-7" />
+                </div>
+                <div className="space-y-3 relative z-10">
+                  <h3 className="text-2xl font-extrabold text-navy-900 tracking-tight">
+                    {t("Auto-deploy GitHub", "GitHub Auto-deploy")}
+                  </h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed">
+                    {t(
+                      "Hubungkan repositori GitHub kamu untuk melakukan deployment aplikasi secara otomatis dan praktis.",
+                      "Connect your GitHub repository to automatically and conveniently deploy your applications."
+                    )}
+                  </p>
+                </div>
+                <div className="absolute -bottom-10 -right-6 opacity-[0.03] pointer-events-none">
+                  <GithubIcon className="w-56 h-56 text-navy-900" />
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-navy-900">
-                {t("Auto-deploy GitHub", "GitHub Auto-deploy")}
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                {t(
-                  "Hubungkan repositori GitHub kamu untuk melakukan deployment aplikasi secara otomatis dan praktis.",
-                  "Connect your GitHub repository to automatically and conveniently deploy your applications."
-                )}
-              </p>
             </SpotlightCard>
           </ScrollRevealItem>
 
-          <ScrollRevealItem delay={0.4} className="h-full">
-            <SpotlightCard className="space-y-3 h-full">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                <Terminal className="w-6 h-6" />
+          {/* Card 4: Wide (2 columns) */}
+          <ScrollRevealItem delay={0.4} className="lg:col-span-2 h-full">
+            <SpotlightCard className="h-full p-0 overflow-hidden border border-slate-200/60 bg-gradient-to-tl from-white to-slate-50/80">
+              <div className="h-full flex flex-col sm:flex-row items-start sm:items-center gap-6 p-8 relative">
+                <div className="flex-1 space-y-4 relative z-10">
+                  <div className="w-14 h-14 bg-blue-100/80 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-200/50">
+                    <Terminal className="w-7 h-7" />
+                  </div>
+                  <h3 className="text-2xl font-extrabold text-navy-900 tracking-tight">
+                    {t("Akses Web CLI", "Web CLI Access")}
+                  </h3>
+                  <p className="text-sm text-neutral-600 leading-relaxed max-w-md">
+                    {t(
+                      "Kelola server langsung dari browser tanpa perlu install aplikasi terminal atau SSH di perangkat kamu. Proses aman dan terenkripsi penuh.",
+                      "Manage your server directly from the browser without installing terminal tools or SSH clients. Fully encrypted and secure process."
+                    )}
+                  </p>
+                </div>
+                <div className="hidden sm:flex flex-1 justify-end absolute -right-4 -bottom-12 opacity-[0.03] pointer-events-none">
+                  <Terminal className="w-72 h-72 text-navy-900" />
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-navy-900">
-                {t("Akses Web CLI", "Web CLI Access")}
-              </h3>
-              <p className="text-xs text-neutral-600 leading-relaxed">
-                {t(
-                  "Kelola server langsung dari browser tanpa perlu install aplikasi terminal atau SSH di perangkat kamu.",
-                  "Manage your server directly from the browser without installing terminal tools or SSH clients."
-                )}
-              </p>
             </SpotlightCard>
           </ScrollRevealItem>
         </div>
       </section>
 
       {/* Preview Tier Harga Section (Fokus Konversi - Featured Card with ShineBorder & SparklesText) */}
-      <section className="bg-slate-50 py-16 border-y border-slate-200/60">
+      <section className="bg-blue-50 py-16 border-y border-slate-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           <ScrollReveal direction="up" distance={25}>
             <div className="text-center space-y-3">
@@ -290,77 +326,121 @@ export default function LandingPage() {
             </div>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-10 max-w-[1300px] mx-auto items-stretch py-8">
             {loading
               ? [1, 2, 3].map((i) => (
-                  <div key={i} className="h-80 bg-slate-200/60 animate-pulse rounded-2xl" />
+                  <div key={i} className="h-[600px] bg-slate-200/60 animate-pulse rounded-3xl" />
                 ))
               : plans.slice(0, 3).map((plan, idx) => {
                   const isFeatured = idx === 1;
+                  // Reveal order: Left (0) -> Right (2) -> Middle (1)
+                  let revealDelay = 0;
+                  if (idx === 0) revealDelay = 0;
+                  else if (idx === 2) revealDelay = 0.3;
+                  else if (idx === 1) revealDelay = 0.6;
 
-                  const cardContent = (
-                    <div
-                      className={`p-6 bg-white rounded-2xl flex flex-col justify-between h-full ${
-                        isFeatured
-                          ? "scale-105 shadow-xl transition-transform duration-300"
-                          : "border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-                      }`}
-                    >
-                      {isFeatured && (
-                        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20">
-                          <span className="bg-navy-800 text-white text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md inline-flex items-center justify-center">
-                            <SparklesText text={t("Paling Laris", "Best Seller")} />
-                          </span>
-                        </div>
-                      )}
-                      <div className="space-y-4 pt-2">
-                        <h3 className="text-xl font-bold text-navy-900">{plan.name}</h3>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-extrabold text-navy-900">
-                            {formatRupiah(plan.price)}
-                          </span>
-                          <span className="text-xs text-neutral-500">
-                            / {plan.durationDays} {t("hari", "days")}
-                          </span>
-                        </div>
-                        <ul className="space-y-2 text-xs text-neutral-600 pt-2 border-t border-slate-100">
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600" /> RAM: {plan.ramMb} MB
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600" /> CPU: {plan.cpuAllowance}%
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600" /> Storage: {plan.storageGb} GB
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600" />{" "}
-                            {t("Web CLI & Subdomain Publik", "Web CLI & Public Subdomain")}
-                          </li>
-                        </ul>
-                      </div>
-                      <div className="pt-6">
-                        <Link
-                          href="/product"
-                          className={`w-full py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center transition-all ${
-                            isFeatured
-                              ? "bg-navy-800 hover:bg-navy-900 text-white shadow-md hover:shadow-lg"
-                              : "bg-blue-100 hover:bg-blue-100/80 text-navy-900"
-                          }`}
-                        >
-                          {t("Sewa Sekarang", "Rent Now")}
-                        </Link>
-                      </div>
-                    </div>
-                  );
+                  let planSubtitle = "";
+                  let planDesc = "";
+                  let planTarget = "";
+
+                  if (idx === 0) {
+                    planSubtitle = t("Uji Coba & Eksperimen", "Trial & Experiment");
+                    planDesc = t(
+                      "Sangat cocok untuk kalian yang butuh server sementara untuk testing aplikasi, deploy tugas akhir, atau sekadar mencoba environment Linux.",
+                      "Perfect for those who need a temporary server for app testing, final project deployment, or just trying out a Linux environment."
+                    );
+                    planTarget = t("Target: Mahasiswa saat presentasi tugas atau demo project.", "Target: Students during assignment presentations or project demos.");
+                  } else if (idx === 1) {
+                    planSubtitle = t("Pengerjaan Project Mingguan", "Weekly Project Work");
+                    planDesc = t(
+                      "Paket terlaris untuk pengerjaan project ukuran sedang, hackathon, atau event akhir pekan. Waktu yang pas untuk fokus coding tanpa pusing mikirin biaya bulanan.",
+                      "Best-selling plan for medium-sized projects, hackathons, or weekend events. The right time to focus on coding without worrying about monthly fees."
+                    );
+                    planTarget = t("Target: Mahasiswa tingkat akhir, peserta lomba, atau freelance.", "Target: Final year students, competition participants, or freelancers.");
+                  } else {
+                    planSubtitle = t("Hosting Sementara & Event", "Temporary Hosting & Events");
+                    planDesc = t(
+                      "Pilihan tepat untuk menjalankan server nonstop selama seminggu penuh. Cocok untuk menampung traffic saat ujian online, event kampus, atau pameran.",
+                      "The right choice for running a server nonstop for a full week. Suitable for accommodating traffic during online exams, campus events, or exhibitions."
+                    );
+                    planTarget = t("Target: Panitia event kampus, ujian online, atau project jangka menengah.", "Target: Campus event committees, online exams, or medium-term projects.");
+                  }
 
                   return (
-                    <ScrollRevealItem key={plan.id} delay={idx * 0.15} className="h-full">
-                      {isFeatured ? (
-                        <ShineBorder className="h-full">{cardContent}</ShineBorder>
-                      ) : (
-                        cardContent
-                      )}
+                    <ScrollRevealItem key={plan.id} delay={revealDelay}>
+                      <div
+                        className={cn(
+                          "bg-white rounded-[2rem] flex flex-col justify-between relative transition-all duration-300 border",
+                          isFeatured
+                            ? "border-blue-600 shadow-2xl ring-4 ring-blue-600/10 scale-105 p-8 lg:p-10 z-10"
+                            : "border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-blue-400 p-8 lg:p-10"
+                        )}
+                      >
+                        {isFeatured && (
+                          <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-20">
+                            <span className="bg-navy-800 text-white text-[11px] font-bold px-5 py-2 rounded-full uppercase tracking-wider shadow-lg inline-flex items-center justify-center">
+                              <SparklesText text={t("Paling Laris", "Best Seller")} />
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex flex-col flex-grow">
+                          <div className="space-y-2">
+                            <span className="text-xs font-extrabold text-blue-600 uppercase tracking-widest">{plan.tier}</span>
+                            <h3 className="text-xl font-bold text-navy-900 leading-tight">{planSubtitle}</h3>
+                          </div>
+                          
+                          <div className="flex items-baseline gap-1 mt-6">
+                            <span className="text-4xl lg:text-5xl font-black text-navy-900 tracking-tight">
+                              {formatRupiah(plan.price)}
+                            </span>
+                            <span className="text-sm text-neutral-500 font-medium">
+                              / {plan.durationDays} {t("hari", "days")}
+                            </span>
+                          </div>
+
+                          <div className="space-y-4 mt-6">
+                            <p className="text-[15px] text-neutral-600 leading-relaxed">
+                              {planDesc}
+                            </p>
+                            <p className="text-[13px] italic text-neutral-500 font-medium">
+                              {planTarget}
+                            </p>
+                          </div>
+
+                          <hr className="border-slate-100 my-8" />
+
+                          <ul className="space-y-4 text-[15px] text-neutral-700 mb-8">
+                            <li className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                              <span><strong className="text-navy-900 font-bold">{plan.ramMb} MB</strong> RAM / Memory</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                              <span><strong className="text-navy-900 font-bold">{plan.cpuAllowance}%</strong> CPU Core</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                              <span><strong className="text-navy-900 font-bold">{plan.storageGb} GB</strong> Disk Storage</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <CheckCircle2 className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
+                              <span>Akses Web CLI & Subdomain Publik</span>
+                            </li>
+                          </ul>
+                        </div>
+                        <div className="mt-auto">
+                          <Link
+                            href="/product"
+                            className={`w-full py-3.5 rounded-xl font-bold text-sm flex items-center justify-center transition-all ${
+                              isFeatured
+                                ? "bg-navy-800 hover:bg-navy-900 text-white shadow-lg hover:shadow-xl"
+                                : "bg-blue-50 hover:bg-blue-100 text-navy-900"
+                            }`}
+                          >
+                            {t("Sewa Sekarang", "Rent Now")}
+                          </Link>
+                        </div>
+                      </div>
                     </ScrollRevealItem>
                   );
                 })}
@@ -401,21 +481,23 @@ export default function LandingPage() {
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-5xl mx-auto">
           {personas.map((p, idx) => {
             const Icon = p.icon;
             return (
               <ScrollRevealItem
                 key={idx}
-                delay={idx * 0.1}
-                direction={idx < 2 ? "right" : "left"}
+                delay={idx * 0.15}
+                direction={idx % 2 === 0 ? "right" : "left"}
               >
-                <div className="group p-6 bg-blue-100/20 border border-blue-100/80 rounded-2xl space-y-3 hover:bg-blue-100/40 hover:-translate-y-1 transition-all duration-300 h-full">
-                  <div className="w-10 h-10 bg-navy-800 text-white rounded-lg flex items-center justify-center shadow-sm group-hover:-translate-y-1 transition-transform duration-300">
-                    <Icon className="w-5 h-5" />
+                <div className="group p-8 bg-white border border-slate-200 rounded-[2rem] hover:border-blue-400 hover:shadow-lg transition-all duration-300 flex flex-col sm:flex-row items-start gap-6 h-full">
+                  <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white group-hover:rotate-3 group-hover:scale-110 transition-all duration-300 shadow-sm border border-blue-100">
+                    <Icon className="w-7 h-7" />
                   </div>
-                  <h3 className="text-base font-bold text-navy-900">{p.title}</h3>
-                  <p className="text-xs text-neutral-600 leading-relaxed">{p.desc}</p>
+                  <div className="space-y-2 mt-1">
+                    <h3 className="text-xl font-bold text-navy-900">{p.title}</h3>
+                    <p className="text-[15px] text-neutral-600 leading-relaxed">{p.desc}</p>
+                  </div>
                 </div>
               </ScrollRevealItem>
             );
