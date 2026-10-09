@@ -1,0 +1,68 @@
+name: Deploy to RupaCloud (Next.js)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Auto-Deploy to Container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: SSH to RupaCloud Container & Deploy
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          APP_ENV_CONTENT: ${{ secrets.APP_ENV }}
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: APP_ENV_CONTENT
+          script: |
+            # 1. Pastikan folder ~/app tersedia dan clone/pull dari branch main
+            set -e
+            if [ ! -d ~/app/.git ]; then
+              rm -rf ~/app
+              git clone -b main https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ~/app
+              cd ~/app
+            else
+              cd ~/app
+              git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+              git fetch --all
+              git reset --hard origin/main
+            fi
+            # 2. Inject environment variables dari GitHub Secret (APP_ENV)
+            if [ -n "$APP_ENV_CONTENT" ]; then
+              echo "$APP_ENV_CONTENT" > .env
+            fi
+            # 3. Install dependensi
+            npm install
+            # 4. Build application
+            npx prisma generate && npm run build
+            # 5. Konfigurasi Nginx reverse proxy ke port 3000 (jika Nginx terpasang)
+            if which nginx >/dev/null 2>&1; then
+              cat << 'NGINX_EOF' > /etc/nginx/sites-available/default
+            server {
+                listen 80 default_server;
+                listen [::]:80 default_server;
+                server_name _;
+                location / {
+                    proxy_pass http://127.0.0.1:3000;
+                    proxy_http_version 1.1;
+                    proxy_set_header Upgrade $http_upgrade;
+                    proxy_set_header Connection 'upgrade';
+                    proxy_set_header Host $host;
+                    proxy_cache_bypass $http_upgrade;
+                }
+            }
+            NGINX_EOF
+              nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
+            fi
+            # 6. Menjalankan / merestart aplikasi
+            pm2 delete app 2>/dev/null || true
+            pm2 restart app 2>/dev/null || pm2 start npm --name app -- start -- -p 3000
+            pm2 save 2>/dev/null || true
