@@ -31,9 +31,11 @@ jobs:
             npx prisma generate || true
           fi
           npm run build
-          # Hapus cache compiler internal (.next/cache) agar ukuran arsip turun dari ~300MB jadi ~5-10MB
+          # Hapus cache compiler internal (.next/cache) agar ukuran arsip ringkas
           rm -rf .next/cache
-          tar -czf "$GITHUB_WORKSPACE/build.tar.gz" .next $([ -d public ] && echo "public") package.json $([ -f package-lock.json ] && echo "package-lock.json") $(ls next.config.* 2>/dev/null || true) $([ -f .env ] && echo ".env") $([ -d prisma ] && echo "prisma")
+          # Prune devDependencies di runner cloud (7GB RAM), simpan dependensi runtime saja
+          npm prune --omit=dev
+          tar -czf "$GITHUB_WORKSPACE/build.tar.gz" .next node_modules $([ -d public ] && echo "public") package.json $(ls next.config.* 2>/dev/null || true) $([ -f .env ] && echo ".env") $([ -d prisma ] && echo "prisma")
 
       - name: Transfer Build Artifacts to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -58,10 +60,7 @@ jobs:
             cd ~/app
             tar -xzf build.tar.gz
             rm -f build.tar.gz
-            npm install --omit=dev
-            if [ -f prisma/schema.prisma ]; then
-              npx prisma db push --skip-generate 2>/dev/null || true
-            fi
+            # VPS tidak perlu menjalankan npm install (bebas OOM & hemat RAM 768MB)
             if which nginx >/dev/null 2>&1; then
               cat << 'NGINX_EOF' > /etc/nginx/sites-available/default
             server {
