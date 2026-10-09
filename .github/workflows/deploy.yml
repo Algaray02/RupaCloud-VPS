@@ -31,6 +31,8 @@ jobs:
             npx prisma generate || true
           fi
           npm run build
+          # Hapus cache compiler internal (.next/cache) agar ukuran arsip turun dari ~300MB jadi ~5-10MB
+          rm -rf .next/cache
           tar -czf "$GITHUB_WORKSPACE/build.tar.gz" .next $([ -d public ] && echo "public") package.json $([ -f package-lock.json ] && echo "package-lock.json") $(ls next.config.* 2>/dev/null || true) $([ -f .env ] && echo ".env") $([ -d prisma ] && echo "prisma")
 
       - name: Transfer Build Artifacts to VPS
