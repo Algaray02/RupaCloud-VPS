@@ -44,10 +44,11 @@ jobs:
             if [ -f prisma/schema.prisma ] || grep -q 'prisma' package.json 2>/dev/null; then
               npx prisma generate 2>/dev/null || true
               if [ -n "$APP_ENV_CONTENT" ]; then
-                npx prisma db push --skip-generate 2>/dev/null || true
+                npx prisma db push --skip-generate --accept-data-loss 2>/dev/null || true
               fi
             fi
             # 4. Build application
+            export NODE_OPTIONS="--max-old-space-size=1024"
             npx prisma generate && npm run build
             # 5. Konfigurasi Nginx reverse proxy ke port 3000 (jika Nginx terpasang)
             if which nginx >/dev/null 2>&1; then
