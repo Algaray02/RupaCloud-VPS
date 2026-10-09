@@ -1,66 +1,55 @@
-name: Deploy to RupaCloud (Next.js - Cloud Build)
+name: Deploy to RupaCloud (Next.js)
 
 on:
   push:
     branches: [main]
 
 jobs:
-  build-and-deploy:
-    name: Build in Cloud & Deploy to VPS
+  deploy:
+    name: Auto-Deploy to Container
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js (7GB RAM Runner)
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Dependencies & Build Next.js
+      - name: SSH to RupaCloud Container & Deploy
+        uses: appleboy/ssh-action@v1.0.0
         env:
           APP_ENV_CONTENT: ${{ secrets.APP_ENV }}
-        run: |
-          set -e
-          
-          if [ -n "$APP_ENV_CONTENT" ]; then
-            echo "$APP_ENV_CONTENT" > .env
-          fi
-          npm install
-          if [ -f prisma/schema.prisma ] || grep -q 'prisma' package.json 2>/dev/null; then
-            npx prisma generate || true
-          fi
-          npm run build
-          # Hapus cache compiler internal (.next/cache) agar ukuran arsip ringkas
-          rm -rf .next/cache
-          # Prune devDependencies di runner cloud (7GB RAM), simpan dependensi runtime saja
-          npm prune --omit=dev
-          tar -czf "$GITHUB_WORKSPACE/build.tar.gz" .next node_modules $([ -d public ] && echo "public") package.json $(ls next.config.* 2>/dev/null || true) $([ -f .env ] && echo ".env") $([ -d prisma ] && echo "prisma")
-
-      - name: Transfer Build Artifacts to VPS
-        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           username: root
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "build.tar.gz"
-          target: "~/app"
-
-      - name: Extract & Launch Application on VPS
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: APP_ENV_CONTENT
           script: |
+            # 1. Pastikan folder ~/app tersedia dan clone/pull dari branch main
             set -e
-            mkdir -p ~/app
-            cd ~/app
-            tar -xzf build.tar.gz
-            rm -f build.tar.gz
-            # VPS tidak perlu menjalankan npm install (bebas OOM & hemat RAM 768MB)
+            if [ ! -d ~/app/.git ]; then
+              rm -rf ~/app
+              git clone -b main https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git ~/app
+              cd ~/app
+            else
+              cd ~/app
+              git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+              git fetch --all
+              git reset --hard origin/main
+            fi
+            # 2. Inject environment variables dari GitHub Secret (APP_ENV)
+            if [ -n "$APP_ENV_CONTENT" ]; then
+              echo "$APP_ENV_CONTENT" > .env
+            fi
+            # 3. Install dependensi
+            npm install
+            if [ -f prisma/schema.prisma ] || grep -q 'prisma' package.json 2>/dev/null; then
+              npx prisma generate 2>/dev/null || true
+              if [ -n "$APP_ENV_CONTENT" ]; then
+                npx prisma db push --skip-generate 2>/dev/null || true
+              fi
+            fi
+            # 4. Build application
+            npx prisma generate && npm run build
+            # 5. Konfigurasi Nginx reverse proxy ke port 3000 (jika Nginx terpasang)
             if which nginx >/dev/null 2>&1; then
               cat << 'NGINX_EOF' > /etc/nginx/sites-available/default
             server {
@@ -79,6 +68,7 @@ jobs:
             NGINX_EOF
               nginx -t 2>/dev/null && systemctl reload nginx 2>/dev/null || true
             fi
+            # 6. Menjalankan / merestart aplikasi
             pm2 delete app 2>/dev/null || true
-            pm2 start npm --name app -- start -- -p 3000
+            pm2 restart app 2>/dev/null || pm2 start npm --name app -- start -- -p 3000
             pm2 save 2>/dev/null || true
